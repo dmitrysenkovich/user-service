@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- Defaulting LOG_FOLDER and LOG_FILENAME variables from Chef Recepies if not set -->
+    <property name="LOG_FOLDER" value="${LOG_FOLDER:-logs}"/>
+    <property name="LOG_FILENAME" value="${LOG_FILENAME:-user-service-app.log}"/>
+    <property name="LOG_FILENAME_JSON" value="${LOG_FILENAME}.json"/>
+    <property name="LOG_PATTERN" value="%d{yyyy.MM.dd HH:mm:ss.SSS z} [%thread] %-5level %lo{1} - %msg%n"/>
+
+    <logger name="org.apache.tomcat.jdbc.pool.ConnectionPool" level="OFF"/>
+
+    <springProfile name="local">
+        <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <charset>UTF-8</charset>
+                <pattern>${LOG_PATTERN}</pattern>
+            </encoder>
+        </appender>
+
+        <appender name="ASYNC_STDOUT" class="ch.qos.logback.classic.AsyncAppender">
+            <discardingThreshold>0</discardingThreshold>
+            <appender-ref ref="STDOUT"/>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="ASYNC_STDOUT"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="prod">
+        <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <encoder>
+                <charset>UTF-8</charset>
+                <pattern>${LOG_PATTERN}</pattern>
+            </encoder>
+
+            <file>${LOG_FOLDER}/${LOG_FILENAME}</file>
+
+            <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+                <FileNamePattern>${LOG_FOLDER}/${LOG_FILENAME}.%i.part.zip</FileNamePattern>
+                <MinIndex>1</MinIndex>
+                <MaxIndex>10</MaxIndex>
+            </rollingPolicy>
+
+            <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+                <MaxFileSize>100MB</MaxFileSize>
+            </triggeringPolicy>
+        </appender>
+
+        <appender name="FILE_JSON" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                <fieldNames>
+                    <timestamp>timestamp</timestamp>
+                </fieldNames>
+            </encoder>
+
+            <file>${LOG_FOLDER}/${LOG_FILENAME_JSON}</file>
+
+            <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+                <FileNamePattern>${LOG_FOLDER}/${LOG_FILENAME_JSON}.%i.part.zip</FileNamePattern>
+                <MinIndex>1</MinIndex>
+                <MaxIndex>10</MaxIndex>
+            </rollingPolicy>
+
+            <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+                <MaxFileSize>100MB</MaxFileSize>
+            </triggeringPolicy>
+        </appender>
+
+        <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
+            <discardingThreshold>0</discardingThreshold>
+            <appender-ref ref="FILE"/>
+        </appender>
+
+        <appender name="ASYNC_FILE_JSON" class="ch.qos.logback.classic.AsyncAppender">
+            <discardingThreshold>0</discardingThreshold>
+            <appender-ref ref="FILE_JSON"/>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="ASYNC_FILE"/>
+            <appender-ref ref="ASYNC_FILE_JSON"/>
+        </root>
+    </springProfile>
+</configuration>
