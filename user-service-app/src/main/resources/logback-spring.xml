@@ -8,7 +8,7 @@
 
     <logger name="org.apache.tomcat.jdbc.pool.ConnectionPool" level="OFF"/>
 
-    <springProfile name="local">
+    <springProfile name="local, heroku">
         <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
             <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
                 <charset>UTF-8</charset>
