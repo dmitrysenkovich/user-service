@@ -1,1 +1,1 @@
-web: java -DLAST_GIT_COMMIT_HASH=$LAST_GIT_COMMIT_HASH -Dspring.profiles.active=heroku -Dserver.port=$PORT -jar ./user-service-app/target/user-service-app-0.0.1-SNAPSHOT.jar
+web: java -Dspring.profiles.active=heroku -Dserver.port=$PORT -jar ./user-service-app/target/user-service-app-0.0.1-SNAPSHOT.jar
